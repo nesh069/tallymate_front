@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { getGrossBalances, getNetBalances, getActivity } from "../api/balances";
 import SettleUpModal from "../components/balances/SettleUpModal";
+import SpendingSummary from "../components/balances/SpendingSummary";
 
 export default function Balances() {
   const { groupId } = useParams();
@@ -91,6 +92,8 @@ export default function Balances() {
           </div>
         ))
       )}
+
+      <SpendingSummary groupId={groupId} />
 
       {showSettle && (
         <SettleUpModal
