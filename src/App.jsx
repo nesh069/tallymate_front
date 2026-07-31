@@ -24,7 +24,7 @@ export default function App() {
             <Route path="/groups/:groupId/balances" element={<Balances />} />
           </Route>
         </Route>
-        <Route path="/" element={<Navigate to="/profile" replace />} />
+        <Route path="/" element={<Navigate to="/groups" replace />} />
         <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
