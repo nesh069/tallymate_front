@@ -1,7 +1,7 @@
 import { deleteExpense as deleteExpenseRequest } from "../../api/expenses";
 import ExpenseItem from "./ExpenseItem";
 
-function ExpenseList({ expenses, members, currentUserId, onDeleted }) {
+function ExpenseList({ expenses, members, currentUserId, onDeleted, currency = "USD" }) {
   const handleDelete = async (expenseId) => {
     await deleteExpenseRequest(expenseId);
     onDeleted?.(expenseId);
@@ -20,6 +20,7 @@ function ExpenseList({ expenses, members, currentUserId, onDeleted }) {
           members={members}
           currentUserId={currentUserId}
           onDelete={handleDelete}
+          currency={currency}
         />
       ))}
     </ul>

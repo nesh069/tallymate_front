@@ -57,13 +57,19 @@ export function AuthProvider({ children }) {
     }
   }, [])
 
+  const updateCurrency = useCallback(async (currency) => {
+    const { data } = await api.patch("/auth/me", { currency });
+    setUser(data.user || data);
+  }, [])
+
   const value = useMemo(() => ({
     user, token, isAuthenticated: Boolean(token), isLoading,
     login: (credentials) => authenticate('/auth/login', credentials),
     signup: (details) => authenticate('/auth/signup', details),
     logout,
     setUser,
-  }), [authenticate, isLoading, logout, token, user])
+    updateCurrency,
+  }), [authenticate, isLoading, logout, token, user, updateCurrency])
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

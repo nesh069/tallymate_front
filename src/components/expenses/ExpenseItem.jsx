@@ -1,8 +1,9 @@
+import { formatAmount } from "../../utils/format";
 function memberName(members, userId) {
   return members.find((m) => m.id === userId)?.name ?? `User ${userId}`;
 }
 
-function ExpenseItem({ expense, members, currentUserId, onDelete }) {
+function ExpenseItem({ expense, members, currentUserId, onDelete, currency = "USD" }) {
   const payerName = memberName(members, expense.paid_by);
   const myShare = expense.shares.find((s) => s.user_id === currentUserId);
   const isPayer = expense.paid_by === currentUserId;
@@ -10,7 +11,7 @@ function ExpenseItem({ expense, members, currentUserId, onDelete }) {
   let balanceLabel = null;
   if (myShare && !isPayer) {
     balanceLabel = (
-      <span className="text-owe text-sm font-semibold">You owe ${myShare.amount}</span>
+      <span className="text-owe text-sm font-semibold">You owe {formatAmount(myShare.amount, currency)}</span>
     );
   } else if (isPayer) {
     const othersOwe = expense.shares
@@ -19,7 +20,7 @@ function ExpenseItem({ expense, members, currentUserId, onDelete }) {
     if (othersOwe > 0) {
       balanceLabel = (
         <span className="text-owed text-sm font-semibold">
-          You&apos;re owed ${othersOwe.toFixed(2)}
+          You&apos;re owed {formatAmount(othersOwe, currency)}
         </span>
       );
     }
@@ -35,7 +36,7 @@ function ExpenseItem({ expense, members, currentUserId, onDelete }) {
           </p>
         </div>
         <div className="flex flex-col items-end gap-1">
-          <span className="text-lg font-semibold text-text-primary">${expense.amount}</span>
+          <span className="text-lg font-semibold text-text-primary">{formatAmount(expense.amount, currency)}</span>
           {onDelete && isPayer && (
             <button
               type="button"
@@ -57,7 +58,7 @@ function ExpenseItem({ expense, members, currentUserId, onDelete }) {
             <li key={share.user_id} className="flex justify-between">
               <span>{memberName(members, share.user_id)}</span>
               <span>
-                ${share.amount}
+                {formatAmount(share.amount, currency)}
                 {share.percentage ? ` (${share.percentage}%)` : ""}
               </span>
             </li>

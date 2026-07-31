@@ -381,6 +381,7 @@ export function GroupDetail() {
             members={group.members}
             currentUserId={user?.id}
             onDeleted={refreshExpenses}
+            currency={user?.currency || "USD"}
           />
         </div>
       </section>
