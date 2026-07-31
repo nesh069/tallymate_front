@@ -1,5 +1,6 @@
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import NotificationBell from "./NotificationBell";
 
 export function AppShell({ children }) {
   const { user } = useAuth();
@@ -14,9 +15,12 @@ export function AppShell({ children }) {
           <NavLink to='/friends'>Friends</NavLink>
           <NavLink to='/groups'>Groups</NavLink>
         </nav>
-        <span className='user-chip'>
-          {user?.name?.slice(0, 1).toUpperCase() || "?"}
-        </span>
+        <div className='flex items-center gap-3'>
+          <NotificationBell />
+          <span className='user-chip'>
+            {user?.name?.slice(0, 1).toUpperCase() || "?"}
+          </span>
+        </div>
       </header>
       {children}
     </main>

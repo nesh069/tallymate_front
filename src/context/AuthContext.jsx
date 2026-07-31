@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { api, setAuthToken, setUnauthorizedHandler } from '../api/client'
+import { api, setAuthToken, setUnauthorizedHandler } from '../api/api'
 
 const AuthContext = createContext(null)
 
@@ -24,6 +24,22 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     setUnauthorizedHandler(logout)
     return () => setUnauthorizedHandler(null)
+  }, [logout])
+
+  useEffect(() => {
+    const storedToken = window.localStorage.getItem("token")
+    if (!storedToken) return
+    setAuthToken(storedToken)
+    setToken(storedToken)
+    api
+      .get("/auth/me")
+      .then((response) => {
+        const data = response.data
+        setUser(data.user || data)
+      })
+      .catch(() => {
+        logout()
+      })
   }, [logout])
 
   const authenticate = useCallback(async (path, payload) => {

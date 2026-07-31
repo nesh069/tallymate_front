@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
+import { api } from "../../api/api";
 import { recordSettlement } from "../../api/balances";
-import client from "../../api/client";
 
 export default function SettleUpModal({ groupId, onClose, onSettled }) {
   const [members, setMembers] = useState([]);
@@ -11,9 +11,9 @@ export default function SettleUpModal({ groupId, onClose, onSettled }) {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    client
-      .get(`/api/groups/${groupId}`)
-      .then((res) => setMembers(res.data.members || []))
+    api
+      .get(`/groups/${groupId}`)
+      .then((res) => setMembers(res.data.group?.members || []))
       .catch(() => setError("Couldn't load group members."));
   }, [groupId]);
 
@@ -29,7 +29,12 @@ export default function SettleUpModal({ groupId, onClose, onSettled }) {
     }
     setSubmitting(true);
     try {
-      await recordSettlement(groupId, payerId, payeeId, Number(amount));
+      await recordSettlement(
+        groupId,
+        Number(payerId),
+        Number(payeeId),
+        Number(amount),
+      );
       onSettled();
     } catch (err) {
       const msg =
@@ -53,9 +58,9 @@ export default function SettleUpModal({ groupId, onClose, onSettled }) {
           className="w-full mb-2 p-2 rounded bg-zinc-800 text-zinc-100"
         >
           <option value="">Who paid?</option>
-          {members.map((uid) => (
-            <option key={uid} value={uid}>
-              User #{uid}
+          {members.map((member) => (
+            <option key={member.id} value={member.id}>
+              {member.name}
             </option>
           ))}
         </select>
@@ -67,10 +72,10 @@ export default function SettleUpModal({ groupId, onClose, onSettled }) {
         >
           <option value="">Who was paid?</option>
           {members
-            .filter((uid) => uid !== Number(payerId))
-            .map((uid) => (
-              <option key={uid} value={uid}>
-                User #{uid}
+            .filter((member) => member.id !== Number(payerId))
+            .map((member) => (
+              <option key={member.id} value={member.id}>
+                {member.name}
               </option>
             ))}
         </select>

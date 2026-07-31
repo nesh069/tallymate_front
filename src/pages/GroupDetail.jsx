@@ -1,13 +1,17 @@
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { api } from "../api/client";
+import { api } from "../api/api";
+import { listExpenses } from "../api/expenses";
 import { useAuth } from "../context/AuthContext";
 import { AppShell } from "../components/AppShell";
+import AddExpenseForm from "../components/expenses/AddExpenseForm";
+import ExpenseList from "../components/expenses/ExpenseList";
 
 export function GroupDetail() {
   const { groupId } = useParams();
   const { user } = useAuth();
   const [group, setGroup] = useState(null);
+  const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
   const [memberId, setMemberId] = useState("");
@@ -26,6 +30,20 @@ export function GroupDetail() {
       })
       .finally(() => {
         if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [groupId]);
+
+  useEffect(() => {
+    let active = true;
+    listExpenses(groupId)
+      .then((data) => {
+        if (active) setExpenses(Array.isArray(data) ? data : data.expenses || []);
+      })
+      .catch(() => {
+        if (active) setError("Could not load expenses.");
       });
     return () => {
       active = false;
@@ -112,6 +130,13 @@ export function GroupDetail() {
           {group.members.length} member{group.members.length !== 1 ? "s" : ""}{" "}
           &middot; Created {new Date(group.created_at).toLocaleDateString()}
         </p>
+        <Link
+          to={`/groups/${groupId}/balances`}
+          className="button button-primary"
+          style={{ display: "inline-block", marginTop: 16 }}
+        >
+          View Balances
+        </Link>
       </section>
 
       {isOwner && (
@@ -146,6 +171,34 @@ export function GroupDetail() {
           )}
         </section>
       )}
+
+      <section className="friend-section" style={{ marginTop: 24 }}>
+        <h2>
+          Expenses <span>{expenses.length}</span>
+        </h2>
+        <AddExpenseForm
+          groupId={Number(groupId)}
+          members={group.members}
+          currentUserId={user?.id}
+          onCreated={() => {
+            listExpenses(groupId).then((data) =>
+              setExpenses(Array.isArray(data) ? data : data.expenses || []),
+            );
+          }}
+        />
+        <div style={{ marginTop: 16 }}>
+          <ExpenseList
+            expenses={expenses}
+            members={group.members}
+            currentUserId={user?.id}
+            onDeleted={() => {
+              listExpenses(groupId).then((data) =>
+                setExpenses(Array.isArray(data) ? data : data.expenses || []),
+              );
+            }}
+          />
+        </div>
+      </section>
 
       <section className="friend-section">
         <h2>

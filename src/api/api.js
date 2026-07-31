@@ -23,22 +23,16 @@ api.interceptors.response.use(
 
 export function setAuthToken(token) {
   authToken = token;
+  if (typeof window !== "undefined") {
+    if (token) window.localStorage.setItem("token", token);
+    else window.localStorage.removeItem("token");
+  }
 }
 
 export function setUnauthorizedHandler(handler) {
   unauthorizedHandler = handler;
 }
 
-const client = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
-});
-
-client.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-  return config;
-});
-
-export default client;
+if (typeof window !== "undefined") {
+  authToken = window.localStorage.getItem("token");
+}

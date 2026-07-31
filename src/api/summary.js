@@ -1,3 +1,4 @@
-import client from "./client";
+import { api } from "./api";
 
-export const getGroupSummary = (groupId) => client.get(`/api/groups/${groupId}/summary`);
+export const getGroupSummary = (groupId) =>
+  api.get(`/api/groups/${groupId}/summary`);
