@@ -13,7 +13,7 @@ function memberName(members, userId) {
 
 export default function Balances() {
   const { groupId } = useParams();
-  const { user } = useAuth();
+  const { user, updateCurrency } = useAuth();
   const currency = user?.currency || "USD";
   const [members, setMembers] = useState([]);
   const [balances, setBalances] = useState(null);
@@ -54,7 +54,18 @@ export default function Balances() {
 
   return (
     <div className="p-4 sm:p-6 max-w-3xl mx-auto bg-zinc-950 min-h-screen text-zinc-100">
-      <h1 className="text-2xl font-semibold mb-4">Balances</h1>
+      <div className="flex items-center justify-between mb-4">
+        <h1 className="text-2xl font-semibold">Balances</h1>
+        <select
+          className="currency-select"
+          aria-label="Currency"
+          value={currency}
+          onChange={(e) => updateCurrency(e.target.value)}
+        >
+          <option value="USD">$ USD</option>
+          <option value="KSH">KSh</option>
+        </select>
+      </div>
 
       {!hasBalances && (
         <p className="text-zinc-400">No expenses yet — balances will show up here once someone adds one.</p>

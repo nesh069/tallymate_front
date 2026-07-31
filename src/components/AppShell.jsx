@@ -3,7 +3,7 @@ import { useAuth } from "../context/AuthContext";
 import NotificationBell from "./NotificationBell";
 
 export function AppShell() {
-  const { user, updateCurrency } = useAuth();
+  const { user } = useAuth();
   return (
     <main className='app-shell'>
       <header className='topbar'>
@@ -16,15 +16,6 @@ export function AppShell() {
           <NavLink to='/groups'>Groups</NavLink>
         </nav>
         <div className='flex items-center gap-3'>
-          <select
-            className='currency-select'
-            aria-label='Currency'
-            value={user?.currency || "USD"}
-            onChange={(e) => updateCurrency(e.target.value)}
-          >
-            <option value='USD'>$ USD</option>
-            <option value='KSH'>KSh</option>
-          </select>
           <NotificationBell />
           <span className='user-chip'>
             {user?.name?.slice(0, 1).toUpperCase() || "?"}
