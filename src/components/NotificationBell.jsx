@@ -48,7 +48,7 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-72 max-w-[calc(100vw-1.75rem)] bg-zinc-900 rounded-lg shadow-lg p-3 z-10 max-h-80 overflow-y-auto">
+        <div className="notification-dropdown max-h-80 overflow-y-auto rounded-lg bg-zinc-900 p-3 shadow-lg break-words">
           {loading ? (
             <p className="text-zinc-400 text-sm">Loading notifications\u2026</p>
           ) : notes.length === 0 ? (
@@ -57,7 +57,7 @@ export default function NotificationBell() {
             notes.map((n) => (
               <div
                 key={n.id}
-                className="text-sm text-zinc-200 border-b border-zinc-800 py-2 break-words"
+                className="text-sm text-zinc-200 border-b border-zinc-800 py-2"
               >
                 {n.message}
               </div>
