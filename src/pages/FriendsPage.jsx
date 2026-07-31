@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { api } from '../api/client'
+import { api } from '../api/api'
 import { AppShell } from '../components/AppShell'
 import { FriendListItem } from '../components/FriendListItem'
 import { FriendRequestForm } from '../components/FriendRequestForm'
