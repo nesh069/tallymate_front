@@ -27,7 +27,6 @@ export function FriendsPage() {
     setWorking(true)
     try {
       const { data } = await api.post('/friends/add', { email })
-      setFriends((current) => [data.friend || data, ...current])
       setMessage('Friend request sent.')
     } finally {
       setWorking(false)
