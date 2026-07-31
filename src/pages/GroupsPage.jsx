@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { api } from "../api/api";
-import { AppShell } from "../components/AppShell";
 
 export function GroupsPage() {
   const [groups, setGroups] = useState([]);
@@ -48,7 +47,7 @@ export function GroupsPage() {
   }
 
   return (
-    <AppShell>
+    <>
       <section className='page-heading'>
         <p className='eyebrow'>Groups</p>
         <h1>Your Groups</h1>
@@ -124,6 +123,6 @@ export function GroupsPage() {
           </ul>
         )}
       </section>
-    </AppShell>
+    </>
   );
 }

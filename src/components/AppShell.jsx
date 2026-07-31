@@ -1,8 +1,8 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import NotificationBell from "./NotificationBell";
 
-export function AppShell({ children }) {
+export function AppShell() {
   const { user } = useAuth();
   return (
     <main className='app-shell'>
@@ -22,7 +22,7 @@ export function AppShell({ children }) {
           </span>
         </div>
       </header>
-      {children}
+      <Outlet />
     </main>
   );
 }
