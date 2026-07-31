@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { api } from "../api/client";
+import { api } from "../api/api";
 import { AppShell } from "../components/AppShell";
 
 export function GroupsPage() {
