@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://tallymate-backend.onrender.com/:path*"
+      "destination": "https://tallymate-back.onrender.com/:path*"
     },
     { "source": "/:path*", "destination": "/index.html" }
   ]
