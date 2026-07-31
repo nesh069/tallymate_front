@@ -40,7 +40,7 @@ export default function SpendingSummary({ groupId, members = [], refreshKey = 0 
       <div className="w-full h-56">
         <ResponsiveContainer>
           <PieChart>
-            <Pie data={chartData} dataKey="value" nameKey="name" outerRadius={80} label>
+            <Pie data={chartData} dataKey="value" nameKey="name" outerRadius="80%" label={false}>
               {chartData.map((_, i) => (
                 <Cell key={i} fill={COLORS[i % COLORS.length]} />
               ))}
@@ -49,6 +49,23 @@ export default function SpendingSummary({ groupId, members = [], refreshKey = 0 
           </PieChart>
         </ResponsiveContainer>
       </div>
+
+      <ul className="mt-4 space-y-2">
+        {chartData.map((entry, i) => (
+          <li key={i} className="flex justify-between items-center gap-2 text-sm">
+            <span className="flex items-center gap-2 min-w-0">
+              <span
+                className="shrink-0 w-3 h-3 rounded-full"
+                style={{ background: COLORS[i % COLORS.length] }}
+              />
+              <span className="truncate text-zinc-300">{entry.name}</span>
+            </span>
+            <span className="shrink-0 font-medium text-zinc-100">
+              {formatAmount(entry.value, currency)}
+            </span>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

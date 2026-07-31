@@ -64,9 +64,9 @@ export default function Balances() {
         <>
           <div className="space-y-2 mb-6">
             {Object.entries(balances).map(([userId, amount]) => (
-              <div key={userId} className="flex justify-between bg-zinc-900 p-3 rounded-lg">
-                <span>{memberName(members, Number(userId))}</span>
-                <span className={amount >= 0 ? "text-emerald-500" : "text-red-500"}>
+              <div key={userId} className="flex justify-between gap-3 bg-zinc-900 p-3 rounded-lg">
+                <span className="truncate min-w-0">{memberName(members, Number(userId))}</span>
+                <span className={`shrink-0 text-right whitespace-nowrap ${amount >= 0 ? "text-emerald-500" : "text-red-500"}`}>
                   {amount >= 0 ? `is owed ${formatAmount(amount, currency)}` : `owes ${formatAmount(Math.abs(amount), currency)}`}
                 </span>
               </div>
@@ -77,9 +77,9 @@ export default function Balances() {
             <div className="mb-6">
               <h2 className="text-xl mb-2">Suggested settlements</h2>
               {simplified.map((t, i) => (
-                <div key={i} className="flex justify-between bg-zinc-900 p-3 rounded-lg mb-2">
-                  <span>{memberName(members, t.from)} → {memberName(members, t.to)}</span>
-                  <span className="font-semibold">{formatAmount(t.amount, currency)}</span>
+                <div key={i} className="flex justify-between gap-3 bg-zinc-900 p-3 rounded-lg mb-2">
+                  <span className="truncate min-w-0">{memberName(members, t.from)} → {memberName(members, t.to)}</span>
+                  <span className="shrink-0 font-semibold whitespace-nowrap">{formatAmount(t.amount, currency)}</span>
                 </div>
               ))}
             </div>
