@@ -9,14 +9,23 @@ import ExpenseList from "../components/expenses/ExpenseList";
 
 export function GroupDetail() {
   const { groupId } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
+
   const [group, setGroup] = useState(null);
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(false);
-  const [memberId, setMemberId] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+
+  // Add member by email
+  const [emailQuery, setEmailQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+
+  // Confirmation dialog state
+  const [confirmAction, setConfirmAction] = useState(null); // { type: 'remove'|'delete'|'leave', userId?, label: '' }
 
   useEffect(() => {
     let active = true;
@@ -52,19 +61,39 @@ export function GroupDetail() {
 
   const isOwner = group && user && group.created_by === user.id;
 
-  async function addMember(e) {
-    e.preventDefault();
-    const id = parseInt(memberId, 10);
-    if (!id || id < 1) return setError("Enter a valid user ID.");
+  // Search users by email as you type
+  useEffect(() => {
+    if (emailQuery.trim().length < 2) {
+      setSearchResults([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const { data } = await api.get(
+          `/friends/search?q=${encodeURIComponent(emailQuery.trim())}`,
+        );
+        setSearchResults(data.users || []);
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [emailQuery]);
+
+  async function addMember(userId) {
     setWorking(true);
     setError("");
     setMessage("");
     try {
       const { data } = await api.post(`/groups/${groupId}/members`, {
-        user_id: id,
+        user_id: userId,
       });
       setGroup(data.group);
-      setMemberId("");
+      setEmailQuery("");
+      setSearchResults([]);
       setMessage("Member added.");
     } catch (err) {
       setError(err.response?.data?.error || "Could not add member.");
@@ -77,6 +106,7 @@ export function GroupDetail() {
     setWorking(true);
     setError("");
     setMessage("");
+    setConfirmAction(null);
     try {
       const { data } = await api.delete(`/groups/${groupId}/members/${userId}`);
       setGroup(data.group);
@@ -88,6 +118,96 @@ export function GroupDetail() {
     }
   }
 
+  async function deleteGroup() {
+    setWorking(true);
+    setError("");
+    setConfirmAction(null);
+    try {
+      await api.delete(`/groups/${groupId}`);
+      navigate("/groups", { replace: true });
+    } catch (err) {
+      setError(err.response?.data?.error || "Could not delete group.");
+      setWorking(false);
+    }
+  }
+
+  async function leaveGroup() {
+    setWorking(true);
+    setError("");
+    setConfirmAction(null);
+    try {
+      await api.delete(`/groups/${groupId}/leave`);
+      navigate("/groups", { replace: true });
+    } catch (err) {
+      setError(err.response?.data?.error || "Could not leave group.");
+      setWorking(false);
+    }
+  }
+
+  // Confirmation Modal
+  function ConfirmDialog() {
+    if (!confirmAction) return null;
+    return (
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "#000000b3",
+          display: "grid",
+          placeItems: "center",
+          zIndex: 100,
+          padding: 24,
+        }}
+      >
+        <div
+          style={{
+            background: "#1A1D23",
+            border: "1px solid #27272A",
+            borderRadius: 16,
+            padding: 28,
+            maxWidth: 400,
+            width: "100%",
+          }}
+        >
+          <h3 style={{ margin: "0 0 10px", fontSize: 18 }}>Confirm</h3>
+          <p
+            style={{
+              color: "#A1A1AA",
+              fontSize: 14,
+              margin: "0 0 24px",
+              lineHeight: 1.6,
+            }}
+          >
+            {confirmAction.label}
+          </p>
+          <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+            <button
+              className='button button-secondary'
+              onClick={() => setConfirmAction(null)}
+              disabled={working}
+            >
+              Cancel
+            </button>
+            <button
+              className='button button-primary'
+              style={{ background: "#EF4444", borderColor: "#EF4444" }}
+              onClick={() => {
+                if (confirmAction.type === "remove")
+                  removeMember(confirmAction.userId);
+                else if (confirmAction.type === "delete") deleteGroup();
+                else if (confirmAction.type === "leave") leaveGroup();
+              }}
+              disabled={working}
+            >
+              {working ? "Please wait…" : "Yes, confirm"}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Loading state
   if (loading) {
     return (
       <AppShell>
@@ -100,6 +220,7 @@ export function GroupDetail() {
     );
   }
 
+  // Not found / no access
   if (!group) {
     return (
       <AppShell>
@@ -121,6 +242,7 @@ export function GroupDetail() {
     );
   }
 
+  // Main view
   return (
     <AppShell>
       <section className="page-heading">
@@ -139,11 +261,24 @@ export function GroupDetail() {
         </Link>
       </section>
 
+      {/* Feedback messages */}
+      {message && (
+        <p className='notice' style={{ marginBottom: 16 }}>
+          {message}
+        </p>
+      )}
+      {error && (
+        <p className='field-error' style={{ marginBottom: 16 }}>
+          {error}
+        </p>
+      )}
+
+      {/* Add member — owner only */}
       {isOwner && (
         <section className="card" style={{ padding: 24 }}>
           <h2 style={{ fontSize: 20, margin: 0 }}>Add a member</h2>
           <p style={{ color: "#A1A1AA", margin: "7px 0 20px", fontSize: 14 }}>
-            Enter the user ID of the person you want to add.
+            Search by email to add an existing user.
           </p>
           <form className="inline-form" onSubmit={addMember}>
             <div className="field" style={{ flex: 1 }}>
@@ -159,6 +294,31 @@ export function GroupDetail() {
               className="button button-primary"
               type="submit"
               disabled={working}
+            />
+            {searching && (
+              <span
+                style={{
+                  position: "absolute",
+                  right: 12,
+                  top: 11,
+                  fontSize: 12,
+                  color: "#A1A1AA",
+                }}
+              >
+                Searching…
+              </span>
+            )}
+          </div>
+          {searchResults.length > 0 && (
+            <ul
+              style={{
+                listStyle: "none",
+                padding: 0,
+                margin: "8px 0 0",
+                border: "1px solid #27272A",
+                borderRadius: 10,
+                overflow: "hidden",
+              }}
             >
               {working ? "Adding…" : "Add Member"}
             </button>
@@ -238,8 +398,47 @@ export function GroupDetail() {
         className="button button-secondary"
         style={{ display: "inline-block", marginTop: 24 }}
       >
-        &larr; Back to Groups
-      </Link>
+        <Link to='/groups' className='button button-secondary'>
+          &larr; Back to Groups
+        </Link>
+
+        {!isOwner && (
+          <button
+            className='button button-secondary destructive'
+            style={{ color: "#EF4444", borderColor: "#EF4444" }}
+            onClick={() =>
+              setConfirmAction({
+                type: "leave",
+                label: "Leave this group? You can be added back by the owner.",
+              })
+            }
+            disabled={working}
+          >
+            Leave Group
+          </button>
+        )}
+
+        {isOwner && (
+          <button
+            className='button button-secondary'
+            style={{
+              color: "#EF4444",
+              borderColor: "#EF4444",
+              marginLeft: "auto",
+            }}
+            onClick={() =>
+              setConfirmAction({
+                type: "delete",
+                label:
+                  "Permanently delete this group and all its data? This cannot be undone.",
+              })
+            }
+            disabled={working}
+          >
+            Delete Group
+          </button>
+        )}
+      </div>
     </AppShell>
   );
 }
