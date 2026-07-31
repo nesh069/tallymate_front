@@ -1,17 +1,17 @@
-import client from "./client";
+import { api } from "./api";
 
 export const getGrossBalances = (groupId) =>
-  client.get(`/api/groups/${groupId}/balances`);
+  api.get(`/api/groups/${groupId}/balances`);
 
 export const getNetBalances = (groupId) =>
-  client.get(`/api/groups/${groupId}/balances/net`);
+  api.get(`/api/groups/${groupId}/balances/net`);
 
 export const recordSettlement = (groupId, payerId, payeeId, amount) =>
-  client.post(`/api/groups/${groupId}/settlements`, {
+  api.post(`/api/groups/${groupId}/settlements`, {
     payer_id: payerId,
     payee_id: payeeId,
     amount,
   });
 
 export const getActivity = (groupId) =>
-  client.get(`/api/groups/${groupId}/activity`);
+  api.get(`/api/groups/${groupId}/activity`);
