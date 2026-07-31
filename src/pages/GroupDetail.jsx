@@ -9,7 +9,7 @@ import ExpenseList from "../components/expenses/ExpenseList";
 export function GroupDetail() {
   const { groupId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, updateCurrency } = useAuth();
 
   const [group, setGroup] = useState(null);
   const [expenses, setExpenses] = useState([]);
@@ -267,6 +267,16 @@ export function GroupDetail() {
         >
           View Balances
         </Link>
+        <select
+          className='currency-select'
+          aria-label='Currency'
+          value={user?.currency || "USD"}
+          onChange={(e) => updateCurrency(e.target.value)}
+          style={{ marginTop: 16, marginLeft: 10 }}
+        >
+          <option value='USD'>$ USD</option>
+          <option value='KSH'>KSh</option>
+        </select>
       </section>
 
       {/* Feedback messages */}
