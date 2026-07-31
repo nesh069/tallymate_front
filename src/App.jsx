@@ -1,32 +1,31 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AppShell } from "./components/AppShell";
+import { LoginPage } from "./pages/LoginPage";
+import { SignupPage } from "./pages/SignupPage";
+import { ProfilePage } from "./pages/ProfilePage";
+import { FriendsPage } from "./pages/FriendsPage";
+import { GroupsPage } from "./pages/GroupsPage";
+import { GroupDetail } from "./pages/GroupDetail";
 import Balances from "./pages/Balances";
 import NotFoundPage from "./pages/NotFoundPage";
-import ProtectedRoute from "./components/ProtectedRoute";
-import NotificationBell from "./components/NotificationBell";
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <nav className="flex items-center justify-between px-6 py-3 bg-zinc-900 text-zinc-100">
-        <Link to="/" className="text-lg font-semibold">
-          TallyMate
-        </Link>
-        <div className="flex items-center gap-4">
-          <NotificationBell />
-        </div>
-      </nav>
-
-      <Routes>
-        <Route
-          path="/groups/:groupId/balances"
-          element={
-            <ProtectedRoute>
-              <Balances />
-            </ProtectedRoute>
-          }
-        />
+    <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route element={<ProtectedRoute />}>
+          <Route element={<AppShell />}>
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/friends" element={<FriendsPage />} />
+            <Route path="/groups" element={<GroupsPage />} />
+            <Route path="/groups/:groupId" element={<GroupDetail />} />
+            <Route path="/groups/:groupId/balances" element={<Balances />} />
+          </Route>
+        </Route>
+        <Route path="/" element={<Navigate to="/profile" replace />} />
         <Route path="*" element={<NotFoundPage />} />
-      </Routes>
-    </BrowserRouter>
+    </Routes>
   );
 }

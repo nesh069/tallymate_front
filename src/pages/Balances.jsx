@@ -39,7 +39,7 @@ export default function Balances() {
   const hasBalances = balances && Object.keys(balances).length > 0;
 
   return (
-    <div className="p-6 bg-zinc-950 min-h-screen text-zinc-100">
+    <div className="p-4 sm:p-6 max-w-3xl mx-auto bg-zinc-950 min-h-screen text-zinc-100">
       <h1 className="text-2xl font-semibold mb-4">Balances</h1>
 
       {!hasBalances && (
