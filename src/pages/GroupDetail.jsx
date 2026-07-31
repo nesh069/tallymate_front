@@ -3,7 +3,6 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../api/api";
 import { listExpenses } from "../api/expenses";
 import { useAuth } from "../context/AuthContext";
-import { AppShell } from "../components/AppShell";
 import AddExpenseForm from "../components/expenses/AddExpenseForm";
 import ExpenseList from "../components/expenses/ExpenseList";
 
@@ -217,20 +216,20 @@ export function GroupDetail() {
   // Loading state
   if (loading) {
     return (
-      <AppShell>
+      <>
         <section className='page-heading'>
           <p className='eyebrow'>Group</p>
           <h1>Loading…</h1>
         </section>
         <p className='muted'>Loading group details…</p>
-      </AppShell>
+      </>
     );
   }
 
   // Not found / no access
   if (!group) {
     return (
-      <AppShell>
+      <>
         <section className='page-heading'>
           <p className='eyebrow'>Group</p>
           <h1>Not Found</h1>
@@ -245,13 +244,13 @@ export function GroupDetail() {
         >
           Back to Groups
         </Link>
-      </AppShell>
+      </>
     );
   }
 
   // Main view
   return (
-    <AppShell>
+    <>
       <ConfirmDialog />
 
       <section className='page-heading'>
@@ -471,6 +470,6 @@ export function GroupDetail() {
           </button>
         )}
       </div>
-    </AppShell>
+    </>
   );
 }

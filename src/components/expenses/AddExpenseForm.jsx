@@ -133,8 +133,8 @@ function AddExpenseForm({ groupId, members, currentUserId, onCreated }) {
         />
       </div>
 
-      <div className="flex gap-4">
-        <div className="flex flex-col gap-1 flex-1">
+      <div className="flex gap-4 flex-wrap">
+        <div className="flex flex-col gap-1 flex-1 min-w-0">
           <label className="text-xs text-text-secondary" htmlFor="amount">
             Amount
           </label>
@@ -150,7 +150,7 @@ function AddExpenseForm({ groupId, members, currentUserId, onCreated }) {
           />
         </div>
 
-        <div className="flex flex-col gap-1 flex-1">
+        <div className="flex flex-col gap-1 flex-1 min-w-0">
           <label className="text-xs text-text-secondary" htmlFor="paidBy">
             Paid by
           </label>

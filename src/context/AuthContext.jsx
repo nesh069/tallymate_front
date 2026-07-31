@@ -12,7 +12,7 @@ function readAuthResponse(data) {
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
-  const [token, setToken] = useState(null)
+  const [token, setToken] = useState(() => window.localStorage.getItem("token"))
   const [isLoading, setIsLoading] = useState(false)
 
   const logout = useCallback(() => {
