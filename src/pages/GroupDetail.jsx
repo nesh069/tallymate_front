@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { api } from "../api/api";
 import { listExpenses } from "../api/expenses";
 import { useAuth } from "../context/AuthContext";
@@ -25,7 +25,7 @@ export function GroupDetail() {
   const [searching, setSearching] = useState(false);
 
   // Confirmation dialog state
-  const [confirmAction, setConfirmAction] = useState(null); // { type: 'remove'|'delete'|'leave', userId?, label: '' }
+  const [confirmAction, setConfirmAction] = useState(null);
 
   useEffect(() => {
     let active = true;
@@ -49,7 +49,8 @@ export function GroupDetail() {
     let active = true;
     listExpenses(groupId)
       .then((data) => {
-        if (active) setExpenses(Array.isArray(data) ? data : data.expenses || []);
+        if (active)
+          setExpenses(Array.isArray(data) ? data : data.expenses || []);
       })
       .catch(() => {
         if (active) setError("Could not load expenses.");
@@ -144,6 +145,12 @@ export function GroupDetail() {
     }
   }
 
+  function refreshExpenses() {
+    listExpenses(groupId).then((data) =>
+      setExpenses(Array.isArray(data) ? data : data.expenses || []),
+    );
+  }
+
   // Confirmation Modal
   function ConfirmDialog() {
     if (!confirmAction) return null;
@@ -211,11 +218,11 @@ export function GroupDetail() {
   if (loading) {
     return (
       <AppShell>
-        <section className="page-heading">
-          <p className="eyebrow">Group</p>
+        <section className='page-heading'>
+          <p className='eyebrow'>Group</p>
           <h1>Loading…</h1>
         </section>
-        <p className="muted">Loading group details…</p>
+        <p className='muted'>Loading group details…</p>
       </AppShell>
     );
   }
@@ -224,16 +231,16 @@ export function GroupDetail() {
   if (!group) {
     return (
       <AppShell>
-        <section className="page-heading">
-          <p className="eyebrow">Group</p>
+        <section className='page-heading'>
+          <p className='eyebrow'>Group</p>
           <h1>Not Found</h1>
         </section>
-        <div className="empty-state">
+        <div className='empty-state'>
           Group not found or you don&apos;t have access.
         </div>
         <Link
-          to="/groups"
-          className="button button-secondary"
+          to='/groups'
+          className='button button-secondary'
           style={{ display: "inline-block", marginTop: 16 }}
         >
           Back to Groups
@@ -245,8 +252,10 @@ export function GroupDetail() {
   // Main view
   return (
     <AppShell>
-      <section className="page-heading">
-        <p className="eyebrow">Group</p>
+      <ConfirmDialog />
+
+      <section className='page-heading'>
+        <p className='eyebrow'>Group</p>
         <h1>{group.name}</h1>
         <p>
           {group.members.length} member{group.members.length !== 1 ? "s" : ""}{" "}
@@ -254,7 +263,7 @@ export function GroupDetail() {
         </p>
         <Link
           to={`/groups/${groupId}/balances`}
-          className="button button-primary"
+          className='button button-primary'
           style={{ display: "inline-block", marginTop: 16 }}
         >
           View Balances
@@ -275,24 +284,17 @@ export function GroupDetail() {
 
       {/* Add member — owner only */}
       {isOwner && (
-        <section className="card" style={{ padding: 24 }}>
+        <section className='card' style={{ padding: 24 }}>
           <h2 style={{ fontSize: 20, margin: 0 }}>Add a member</h2>
           <p style={{ color: "#A1A1AA", margin: "7px 0 20px", fontSize: 14 }}>
             Search by email to add an existing user.
           </p>
-          <form className="inline-form" onSubmit={addMember}>
-            <div className="field" style={{ flex: 1 }}>
-              <input
-                type="number"
-                placeholder="User ID"
-                value={memberId}
-                onChange={(e) => setMemberId(e.target.value)}
-                disabled={working}
-              />
-            </div>
-            <button
-              className="button button-primary"
-              type="submit"
+          <div className='field' style={{ position: "relative" }}>
+            <input
+              type='text'
+              placeholder='Search by email…'
+              value={emailQuery}
+              onChange={(e) => setEmailQuery(e.target.value)}
               disabled={working}
             />
             {searching && (
@@ -320,19 +322,51 @@ export function GroupDetail() {
                 overflow: "hidden",
               }}
             >
-              {working ? "Adding…" : "Add Member"}
-            </button>
-          </form>
-          {message && <p className="notice">{message}</p>}
-          {error && (
-            <p className="field-error" style={{ marginTop: 14 }}>
-              {error}
-            </p>
+              {searchResults.map((u) => {
+                const alreadyInGroup = group.members.some((m) => m.id === u.id);
+                return (
+                  <li
+                    key={u.id}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "space-between",
+                      padding: "10px 14px",
+                      background: "#0F1115",
+                      borderBottom: "1px solid #27272A",
+                      fontSize: 14,
+                    }}
+                  >
+                    <span>
+                      <strong>{u.name}</strong>
+                      <span style={{ color: "#A1A1AA", marginLeft: 8 }}>
+                        {u.email}
+                      </span>
+                    </span>
+                    {alreadyInGroup ? (
+                      <span style={{ color: "#A1A1AA", fontSize: 12 }}>
+                        In group
+                      </span>
+                    ) : (
+                      <button
+                        className='button button-primary'
+                        style={{ fontSize: 12, padding: "6px 12px" }}
+                        onClick={() => addMember(u.id)}
+                        disabled={working}
+                      >
+                        Add
+                      </button>
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
           )}
         </section>
       )}
 
-      <section className="friend-section" style={{ marginTop: 24 }}>
+      {/* Expenses section */}
+      <section className='friend-section' style={{ marginTop: 24 }}>
         <h2>
           Expenses <span>{expenses.length}</span>
         </h2>
@@ -340,48 +374,47 @@ export function GroupDetail() {
           groupId={Number(groupId)}
           members={group.members}
           currentUserId={user?.id}
-          onCreated={() => {
-            listExpenses(groupId).then((data) =>
-              setExpenses(Array.isArray(data) ? data : data.expenses || []),
-            );
-          }}
+          onCreated={refreshExpenses}
         />
         <div style={{ marginTop: 16 }}>
           <ExpenseList
             expenses={expenses}
             members={group.members}
             currentUserId={user?.id}
-            onDeleted={() => {
-              listExpenses(groupId).then((data) =>
-                setExpenses(Array.isArray(data) ? data : data.expenses || []),
-              );
-            }}
+            onDeleted={refreshExpenses}
           />
         </div>
       </section>
 
-      <section className="friend-section">
+      {/* Members section */}
+      <section className='friend-section'>
         <h2>
           Members <span>{group.members.length}</span>
         </h2>
-        <ul className="friend-list">
+        <ul className='friend-list'>
           {group.members.map((member) => (
-            <li key={member.id} className="friend-item">
-              <div className="friend-avatar">
+            <li key={member.id} className='friend-item'>
+              <div className='friend-avatar'>
                 {member.name.slice(0, 1).toUpperCase()}
               </div>
               <div>
                 <strong>{member.name}</strong>
                 <p>{member.email}</p>
               </div>
-              <div className="friend-actions">
+              <div className='friend-actions'>
                 {member.id === group.created_by && (
-                  <span className="status status-pending">Owner</span>
+                  <span className='status status-pending'>Owner</span>
                 )}
                 {isOwner && member.id !== group.created_by && (
                   <button
-                    className="text-button destructive"
-                    onClick={() => removeMember(member.id)}
+                    className='text-button destructive'
+                    onClick={() =>
+                      setConfirmAction({
+                        type: "remove",
+                        userId: member.id,
+                        label: `Remove ${member.name} from this group? They can be added back later.`,
+                      })
+                    }
                     disabled={working}
                   >
                     Remove
@@ -393,10 +426,9 @@ export function GroupDetail() {
         </ul>
       </section>
 
-      <Link
-        to="/groups"
-        className="button button-secondary"
-        style={{ display: "inline-block", marginTop: 24 }}
+      {/* Actions */}
+      <div
+        style={{ display: "flex", gap: 12, marginTop: 24, flexWrap: "wrap" }}
       >
         <Link to='/groups' className='button button-secondary'>
           &larr; Back to Groups
@@ -404,7 +436,7 @@ export function GroupDetail() {
 
         {!isOwner && (
           <button
-            className='button button-secondary destructive'
+            className='button button-secondary'
             style={{ color: "#EF4444", borderColor: "#EF4444" }}
             onClick={() =>
               setConfirmAction({
