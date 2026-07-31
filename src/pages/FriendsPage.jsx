@@ -13,7 +13,7 @@ export function FriendsPage() {
       .finally(() => { if (active) setLoading(false) })
     return () => { active = false }
   }, [])
-  async function addFriend(email) { setWorking(true); try { const { data } = await api.post('/friends', { email }); setFriends((current) => [data.friend || data, ...current]); setMessage('Friend request sent.') } finally { setWorking(false) } }
+  async function addFriend(email) { setWorking(true); try { const { data } = await api.post('/friends/add', { email }); setFriends((current) => [data.friend || { id: data.friend_request.id, email, status: 'pending', direction: 'sent' }, ...current]); setMessage('Friend request sent.') } finally { setWorking(false) } }
   async function acceptFriend(id) { setWorking(true); try { const { data } = await api.post(`/friends/${id}/accept`); setFriends((current) => current.map((friend) => friend.id === id ? (data.friend || { ...friend, status: 'accepted' }) : friend)) } finally { setWorking(false) } }
   async function removeFriend(id) { setWorking(true); try { await api.delete(`/friends/${id}`); setFriends((current) => current.filter((friend) => friend.id !== id)) } finally { setWorking(false) } }
   const pending = friends.filter((friend) => friend.status === 'pending'); const accepted = friends.filter((friend) => friend.status === 'accepted')
