@@ -65,22 +65,28 @@ export function GroupDetail() {
   useEffect(() => {
     if (emailQuery.trim().length < 2) {
       setSearchResults([]);
+      setSearching(false);
       return;
     }
+    let active = true;
     const timer = setTimeout(async () => {
       setSearching(true);
       try {
         const { data } = await api.get(
           `/friends/search?q=${encodeURIComponent(emailQuery.trim())}`,
+          { timeout: 8000 },
         );
-        setSearchResults(data.users || []);
+        if (active) setSearchResults(data.users || []);
       } catch {
-        setSearchResults([]);
+        if (active) setSearchResults([]);
       } finally {
-        setSearching(false);
+        if (active) setSearching(false);
       }
     }, 300);
-    return () => clearTimeout(timer);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
   }, [emailQuery]);
 
   async function addMember(userId) {
@@ -370,6 +376,11 @@ export function GroupDetail() {
                 );
               })}
             </ul>
+          )}
+          {!searching && emailQuery.trim().length >= 2 && searchResults.length === 0 && (
+            <p className='muted' style={{ margin: "8px 0 0", fontSize: 14 }}>
+              No user found with that email.
+            </p>
           )}
         </section>
       )}

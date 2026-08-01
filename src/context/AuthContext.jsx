@@ -10,6 +10,8 @@ function readAuthResponse(data) {
   }
 }
 
+const AUTH_STORAGE_KEYS = ["token", "access_token", "refresh_token", "token_expiry", "user"]
+
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [token, setToken] = useState(() => window.localStorage.getItem("token"))
@@ -19,6 +21,7 @@ export function AuthProvider({ children }) {
     setAuthToken(null)
     setToken(null)
     setUser(null)
+    AUTH_STORAGE_KEYS.forEach((key) => window.localStorage.removeItem(key))
   }, [])
 
   useEffect(() => {
